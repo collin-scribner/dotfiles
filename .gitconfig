@@ -1,0 +1,43 @@
+[alias]
+	lg1 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
+	lg2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
+	lg = !"git lg1"
+  pretty = "!. ~/.githelpers && pretty_git_log"
+  lr = "!git pretty -30"
+	mainbranch = "!git remote show origin | sed -n '/HEAD branch/s/.*: //p'"
+    synced = "!git pull origin $(git mainbranch) --rebase"
+    update = "!git pull origin $(git rev-parse --abbrev-ref HEAD) --rebase"
+    squash = "!git rebase -v -i $(git mainbranch)"
+    publish = push origin HEAD --force-with-lease
+	pub = publish
+	pr = "!f() { \
+       open \"$(git ls-remote --get-url $(git config --get branch.$(git rev-parse --abbrev-ref HEAD).remote) \
+       | sed 's|git@github.com:\\(.*\\)$|https://github.com/\\1|' \
+       | sed 's|\\.git$||'; \
+       )/compare/$(\
+       git config --get branch.$(git rev-parse --abbrev-ref HEAD).merge | cut -d '/' -f 3- \
+       )?expand=1\"; \
+    }; f"
+    hub = "!f() { \
+       open \"$(git ls-remote --get-url \
+       | sed 's|git@github.com:\\(.*\\)$|https://github.com/\\1|' \
+       | sed 's|\\.git$||'; \
+       )\"; \
+	}; f"
+	count-lines = "! git log --author=\"$1\" --pretty=tformat: --numstat | awk '{ add += $1; subs += $2; loc += $1 - $2 } END { printf \"added lines: %s, removed lines: %s, total lines: %s\\n\", add, subs, loc }' #"
+[core]
+	editor = vim
+	excludesfile = /Users/kgn624/.gitignore
+[merge]
+	tool = opendiff
+[credential]
+	helper = cache
+[remote "push"]
+	push = +refs/tags/*:refs/tags/*
+[push]
+	autoSetupRemote = true
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
